@@ -5,17 +5,16 @@ require('dotenv').config();
 
 const os = new OS({
     apikey: process.env.OPENSUBTITLES_API_KEY,
-    useragent: process.env.OPENSUBTITLES_USER_AGENT
 });
 
 let token = null;
 const port = process.env.PORT || 3000;
 
+
+
 app.get("/search", (req, res) => {
-    
-    let query = req.body.query;
     os.search({
-        query: query,
+        query: "see you again",
         sublanguageid: "eng"
     }).then(subtitles => {
         res.send(subtitles);
@@ -25,15 +24,27 @@ app.get("/search", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-    os.login({
-        username: process.env.OPENSUBTITLES_USERNAME,
-        password: process.env.OPENSUBTITLES_PASSWORD
-    }).then(res => {
-        res.send(res);
-        token = res.token;
-    }).catch(err => {
-        res.send(err);
-    });
+    // send post request to "https://api.opensubtitles.com/api/v1/login" with the api key in the header and uesrname and password in the body
+    fetch("https://api.opensubtitles.com/api/v1/login", {
+        method: "POST",
+        headers: {
+            "Api-Key": process.env.OPENSUBTITLES_API_KEY,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            username: "username",
+            password: "password",
+        }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            token = data.token;
+            // os.token = token;
+            res.send(data);
+        })
+        .catch((error) => {
+            res.send(error);
+        });
 });
 
 app.get("/logout", (req, res) => {
