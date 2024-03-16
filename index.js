@@ -30,16 +30,18 @@ app.get("/login", (req, res) => {
         headers: {
             "Api-Key": process.env.OPENSUBTITLES_API_KEY,
             "Content-Type": "application/json",
+            "User-Agent": "opensubtitles.com v1.0.0",
         },
         body: JSON.stringify({
-            username: "username",
-            password: "password",
+            username: process.env.OPENSUBTITLES_USERNAME,
+            password: process.env.OPENSUBTITLES_PASSWORD,
         }),
     })
         .then((response) => response.json())
         .then((data) => {
             token = data.token;
-            // os.token = token;
+            os._authentication.user = data.user;
+            os._authentication.token = data.token;
             res.send(data);
         })
         .catch((error) => {
